@@ -3,28 +3,28 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Location": {
-            "value": "northeurope"
+            "value": "westeurope"
         },
         "StorageAccount_prefix": {
-            "value": "asd"
+            "value": "sg"
         },
         "LogAnalytics_Workspace_Name": {
-            "value": "khcala"
+            "value": "ls-ms-hackathon"
         },
         "AppInsights_Name": {
-            "value": "khcaai"
+            "value": "ai-ms-hackathon"
         },
         "ContainerApps_Environment_Name": {
-            "value": "khcaenv001"
+            "value": "ca-env-ms-hackathon"
         },
         "ContainerApps_HttpApi_CurrentRevisionName": {
             "value": ""
         },
         "ContainerApps_HttpApi_NewRevisionName": {
-            "value": "blue"
+            "value": "ca-new-revision"
         },
         "Container_Registry_Name": {
-            "value": "acrName"
+            "value": "acrmshackathon"
         }
     }
 }

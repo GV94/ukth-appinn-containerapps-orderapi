@@ -1,27 +1,28 @@
 # Challenge 5: Solution
 
 ## Solution steps
+
 Until now we have worked with docker images that others have created, now we are going to do a code change on our own code base and push the changes to Container Apps using _GitHub Actions_.
 We are now going to use a Azure CLI command to create a GitHub Action that builds the _Queue Reader_ C# project and pushes the image to _Azure Container Registry_ and deploys it to our Container App.
 
 First, we need to create a service principal that can be used from the GitHub action to deploy the changes we are introducing.
 
-> **Note**<br> 
+> **Note**<br>
 > If you are not able to create a service principal in the Azure Active Directory that is connected to your subscription, you will unfortunately not be able to do this part of the lab
 
-
-
 ### Create an Azure AD service principal
+
 <details>
   <summary>Azure CLI using Bash</summary>
 
 ```bash
 az ad sp create-for-rbac \
-  --name <SERVICE_PRINCIPAL_NAME> \
+  --name ms-hackathon-principal \
   --role "contributor" \
-  --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP_NAME> \
+  --scopes /subscriptions/$subscriptionId/resourceGroups/$resourceGroup \
   --sdk-auth
 ```
+
 The return value from this command is a JSON payload, which includes the service principal's `tenantId`, `clientId`, and `clientSecret`.
 Set the variables in bash.
 
@@ -52,20 +53,22 @@ $tenantId = (Get-AzContext | Select-Object -ExpandProperty Tenant).Id
 <br>
 
 ### Create a Personal Access Token (PAT) in GitHub
+
 Now we need a GitHub _Personal Access Token (PAT)_ so we can authenticate against GitHub from Azure CLI.
 
 Go to _github.com --> Settings --> Developer Settings --> Personal access tokens_ and click on _Generate new token_ button.
- 
+
 Password prompt might appear. Enter password.
 
 In the _Note_ textbox enter a name for the PAT, such as _ca-pat_.
-Give the PAT the following scopes: 
--	_repo (Full control of private repositories)_ 
--	_workflows (Update GitHub Action workflows)_
+Give the PAT the following scopes:
+
+- _repo (Full control of private repositories)_
+- _workflows (Update GitHub Action workflows)_
 
 ![pat](images/pat.png)
 
-Click _Generate token_, copy the generated token and assign the variable. 
+Click _Generate token_, copy the generated token and assign the variable.
 
 <details>
   <summary>Bash</summary>
@@ -73,7 +76,9 @@ Click _Generate token_, copy the generated token and assign the variable.
 ```bash
 ghToken=[Replace with the PAT]
 ```
-Set the "repoUrl" variable, replace <OWNER> with the GitHub account name. 
+
+Set the "repoUrl" variable, replace <OWNER> with the GitHub account name.
+
 ```bash
 repoUrl=https://github.com/<OWNER>/ukth-appinn-containerapps-orderapi
 ```
@@ -87,7 +92,8 @@ repoUrl=https://github.com/<OWNER>/ukth-appinn-containerapps-orderapi
 ```PowerShell
 $ghToken=[Replace with the PAT]
 ```
-Set the "repoUrl" variable, replace <OWNER> with the GitHub account name. 
+
+Set the "repoUrl" variable, replace <OWNER> with the GitHub account name.
 
 ```PowerShell
 $repoUrl="https://github.com/<OWNER>/ukth-appinn-containerapps-orderapi"
@@ -99,18 +105,17 @@ $repoUrl="https://github.com/<OWNER>/ukth-appinn-containerapps-orderapi"
 <br>
 
 ### Add a GitHub Actions workflow to your repository to deploy a container app
+
 Now we need to get information about the Azure Container Registry that we created in the beginning.
 
 <details>
   <summary>Bash</summary>
-
 
 ```bash
 acrUrl=$(az acr show -n $acr -g $resourceGroup --query 'loginServer' -o tsv)
 acrUsername=$(az acr show -n $acr -g $resourceGroup --query 'name' -o tsv)
 acrSecret=$(az acr credential show -n $acr -g $resourceGroup --query passwords[0].value -o tsv)
 ```
-
 
   </summary>
 </details>
@@ -134,7 +139,6 @@ Now all the variables are set so we can run the Azure CLI command, make sure you
 <details>
   <summary>Azure CLI using Bash</summary>
 
-
 ```bash
 az containerapp github-action add \
   --repo-url $repoUrl \
@@ -152,7 +156,6 @@ az containerapp github-action add \
 
 ```
 
-
   </summary>
 </details>
 
@@ -160,9 +163,10 @@ az containerapp github-action add \
   <summary>Azure CLI using PowerShell</summary>
 
 > **Note**<br>
-> Whilst most Azure tasks can be done using native Azure PowerShell commands this is an exception. 
+> Whilst most Azure tasks can be done using native Azure PowerShell commands this is an exception.
 > Hence we will be using AZ CLI tool for this.
 > If you havent logged in to Azure CLI you can run the following commands
+>
 > ```PowerShell
 > # Login into Azure CLI
 > az login --use-device-code
@@ -206,8 +210,8 @@ Dive into the logs and locate the _latestRevisionName_, then go to the Azure por
 
 ![revision](images/revision.png)
 
-
 ### Do a code change in QueueReader App and push changes to GitHub repository
+
 Now it’s time to do a code change and validate that it has been deployed.
 
 Open _VS Code_ --> _queuereaderapp_ folder --> Open _Worker.cs_ and scroll down to line number **58**, where we are writing to the log.  
@@ -215,16 +219,19 @@ Open _VS Code_ --> _queuereaderapp_ folder --> Open _Worker.cs_ and scroll down 
 ```c#
 logger.LogInformation($"Message ID: '{message.MessageId}', contents: '{message.Body?.ToString()}'");
 ```
+
 Below this line insert the following code.
 
 ```c#
 logger.LogInformation("This is a new log message!");
 ```
+
 Then open the Terminal in VS Code and make sure you are in the _queuereaderapp_ folder. Run this command.
 
 ```bash
 dotnet build . 
 ```
+
 Make sure that the build was succeeded.
 
 Commit the change in VS Code.
@@ -235,7 +242,7 @@ After the commit, the previous created GitHub Action starts, follow the progress
 
 After the deployment has succeeded, please verify that the revision number has changed using the Azure portal.
 
-### Verify that the code change has been deployed 
+### Verify that the code change has been deployed
 
 Now it’s time to validate that the changes we made has taken affect. Send a message to the API.
 
@@ -270,15 +277,16 @@ ContainerAppConsoleLogs_CL
 | project TimeGenerated, Log_s
 | order by TimeGenerated desc
 | limit 50
-``` 
+```
 
 Here you should see one row with the text "This is a new log message!".
 
 You have now configured a simple CI/CD pipeline to automatically deploy code changes to the application.
 
-Next step is to enhance security by protecting our _HTTP API_ using _API Management_. 
+Next step is to enhance security by protecting our _HTTP API_ using _API Management_.
 
 That will be covered in [Challenge 6](challenge6.md)
+
 ## The challenges
 
 - [Challenge 1: Setup the environment](challenge1.md)

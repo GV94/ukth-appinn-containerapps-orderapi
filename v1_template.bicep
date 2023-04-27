@@ -78,7 +78,7 @@ resource ContainerApps_Environment_Name_resource 'Microsoft.App/managedEnvironme
         customerId: LogAnalytics_Workspace_Name_resource.properties.customerId
         sharedKey: listKeys(Workspace_Resource_Id, '2015-03-20').primarySharedKey
       }
-    }    
+    }
     daprAIInstrumentationKey: AppInsights_Name_resource.properties.InstrumentationKey
     daprAIConnectionString: AppInsights_Name_resource.properties.ConnectionString
   }

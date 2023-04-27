@@ -3,25 +3,28 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "Location": {
-            "value": "northeurope"
+            "value": "westeurope"
         },
-        "StorageAccount.Name": {
-            "value": "pumbaankan103"
+        "StorageAccount_prefix": {
+            "value": "sg"
         },
-        "LogAnalytics.Workspace.Name": {
-            "value": "khcala"
+        "LogAnalytics_Workspace_Name": {
+            "value": "ls-ms-hackathon"
         },
-        "AppInsights.Name": {
-            "value": "khcaai"
+        "AppInsights_Name": {
+            "value": "ai-ms-hackathon"
         },
-        "ContainerApps.Environment.Name": {
-            "value": "khcaenv001"
+        "ContainerApps_Environment_Name": {
+            "value": "ca-env-ms-hackathon"
         },
-        "ContainerApps.HttpApi.CurrentRevisionName": {
+        "ContainerApps_HttpApi_CurrentRevisionName": {
             "value": ""
         },
-        "ContainerApps.HttpApi.NewRevisionName": {
-            "value": "blue"
+        "ContainerApps_HttpApi_NewRevisionName": {
+            "value": "ca-new-revision"
+        },
+        "Container_Registry_Name": {
+            "value": "acrmshackathon"
         }
     }
 }

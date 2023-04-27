@@ -6,12 +6,12 @@ public class MessageQueueClient
 {
     private readonly ILogger<MessageQueueClient> _logger;
     private readonly QueueClient _queueClient;
-    
+
     public MessageQueueClient(IConfiguration configuration, ILogger<MessageQueueClient> logger)
     {
         _logger = logger;
         var connectionString = configuration["QueueConnectionString"];
-        var queueName =configuration["QueueName"];
+        var queueName = configuration["QueueName"];
 
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -30,7 +30,7 @@ public class MessageQueueClient
     {
         var response = await _queueClient.GetPropertiesAsync();
         var properties = response.Value;
-        
+
         return $"Queue '{_queueClient.Name}' has {properties.ApproximateMessagesCount} message{(properties.ApproximateMessagesCount != 1 ? "s" : "")}";
     }
 

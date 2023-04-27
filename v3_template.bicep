@@ -31,8 +31,7 @@ resource StorageAccount_Name_default_StorageAccount_Queue_Name 'Microsoft.Storag
   properties: {
     metadata: {}
   }
-  dependsOn: [
-  ]
+  dependsOn: []
 }
 
 resource LogAnalytics_Workspace_Name_resource 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
@@ -74,10 +73,10 @@ resource ContainerApps_Environment_Name_resource 'Microsoft.App/managedEnvironme
         sharedKey: listKeys(Workspace_Resource_Id, '2015-03-20').primarySharedKey
       }
     }
-   
+
     daprAIInstrumentationKey: AppInsights_Name_resource.properties.InstrumentationKey
     daprAIConnectionString: AppInsights_Name_resource.properties.ConnectionString
-    
+
   }
   dependsOn: [
     StorageAccount_Name_resource
@@ -119,7 +118,7 @@ resource queuereader 'Microsoft.App/containerApps@2022-03-01' = {
             {
               name: 'TargetApp'
               value: 'storeapp'
-            } 
+            }
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               value: AppInsights_Name_resource.properties.ConnectionString
@@ -187,8 +186,7 @@ resource storeapp 'Microsoft.App/containerApps@2022-03-01' = {
       }
     }
   }
-  dependsOn: [
-  ]
+  dependsOn: []
 }
 
 resource httpapi 'Microsoft.App/containerApps@2022-03-01' = {
@@ -201,6 +199,16 @@ resource httpapi 'Microsoft.App/containerApps@2022-03-01' = {
       ingress: {
         external: true
         targetPort: 80
+        traffic: [
+          {
+            revisionName: 'httpapi--${ContainerApps_HttpApi_CurrentRevisionName}'
+            weight: 80
+          }
+          {
+            latestRevision: true
+            weight: 20
+          }
+        ]
       }
       secrets: [
         {
@@ -209,10 +217,11 @@ resource httpapi 'Microsoft.App/containerApps@2022-03-01' = {
         }
       ]
       dapr: {
-        enabled: true        
-        appProtocol: 'http' 
+        enabled: true
+        appProtocol: 'http'
       }
     }
+
     template: {
       revisionSuffix: ContainerApps_HttpApi_NewRevisionName
       containers: [
